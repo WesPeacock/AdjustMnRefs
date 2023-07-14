@@ -81,7 +81,6 @@ my @opledfile_in;
 my $line = ""; # accumulated SFM record
 while (<>) {
 	s/\R//g; # chomp that doesn't care about Linux & Windows
-	#perhaps s/\R*$//; if we want to leave in \r characters in the middle of a line
 	s/$eolrep/$reptag/g;
 	$_ .= "$eolrep";
 	if (/^\\$recmark /) {
@@ -92,13 +91,26 @@ while (<>) {
 	else { $line .= $_ }
 	}
 push @opledfile_in, $line;
+say "opledfile array:" if $debug;
+say STDERR @opledfile_in if $debug;
+
+my $sizeopl = scalar @opledfile_in;
+say STDERR "size opl:", $sizeopl if $debug;
+
+my %oplineno =() ; # build a hash of line numbers of lex/homographs
+for (my $oplindex=0; $oplindex < $sizeopl; $oplindex++) {
+	next if ! $opledfile_in[$oplindex];
+	my $key = getkey($opledfile_in[$oplindex], $recmark, $hmmark);
+	$oplineno{$key}= $oplindex;
+	}
+say "oplineno hash keyed on lexeme/homographs:"  if $debug;
+print STDERR Dumper %oplineno  if $debug;
+
+die "died after making opllineno hash";
 
 for my $oplline (@opledfile_in) {
-# Insert code here to perform on each opl'ed line.
-# Note that a next command will prevent the line from printing
-
-say STDERR "oplline:", Dumper($oplline) if $debug;
-#de_opl this line
+	say STDERR "oplline:", Dumper($oplline) if $debug;
+	#de_opl this line
 	for ($oplline) {
 		s/$eolrep/\n/g;
 		s/$reptag/$eolrep/g;
@@ -116,4 +128,21 @@ for ($marks) {
 	s/\,/\|/g;  # use bars for or'ing
 	}
 return $marks;
+}
+
+sub getkey{
+my ($record,  $recmark, $hmmark) = @_;
+=pod
+say STDERR "oplline:$record" if $debug;
+say STDERR "lx:$recmark" if $debug;
+say STDERR "hm:$hmmark" if $debug;
+=cut
+return 0 if $record !~ m/^\\$recmark\ ([^$eolrep]*)/;
+my $buildkey = $1;
+say STDERR "lexeme:$buildkey" if $debug;
+if ($record =~ m/\\$hmmark\ ([^$eolrep]*)/) {
+	$buildkey = $buildkey . $1;
+	say STDERR "lex+hm:$buildkey" if $debug;
+	}
+return $buildkey;
 }
