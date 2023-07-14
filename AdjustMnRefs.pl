@@ -105,8 +105,13 @@ for (my $oplindex=0; $oplindex < $sizeopl; $oplindex++) {
 	}
 say "oplineno hash keyed on lexeme/homographs:"  if $debug;
 print STDERR Dumper %oplineno  if $debug;
-
-die "died after making opllineno hash";
+for my $oplline (@opledfile_in) {
+	$oplline =~ s/\\$mnrefmark /\\$altmnrefmark /g;
+	$oplline =~ s/\\$altmnrefmark /\\$mnrefmark /; # change the first one back
+	}
+say "opledfile array:" if $debug;
+say STDERR @opledfile_in if $debug;
+die "died after making changing 2n-nth mnrefmark";
 
 for my $oplline (@opledfile_in) {
 	say STDERR "oplline:", Dumper($oplline) if $debug;
