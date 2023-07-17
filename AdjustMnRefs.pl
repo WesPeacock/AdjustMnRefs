@@ -111,7 +111,26 @@ for my $oplline (@opledfile_in) {
 	}
 say "opledfile array:" if $debug;
 say STDERR @opledfile_in if $debug;
-die "died after making changing 2n-nth mnrefmark";
+
+for my $oplline  (@opledfile_in) {
+	next if $oplline  !~ /\\$altmnrefmark /;
+	my $oplline_key = getkey($oplline, $recmark, $hmmark);
+	while  ($oplline  =~ /(\\$altmnrefmark ([^$eolrep]+))/g) {
+		my $altmain = $2;
+		if (exists $oplineno{$altmain}) {
+			say STDERR qq(Line # hash lookup on "$altmain" found:$oplineno{$altmain}) if $debug;
+			my $altmainrec = $opledfile_in[$oplineno{$altmain}];
+			say STDERR qq(Found Alternate main reference: "$altmainrec") if $debug;
+			$altmainrec =~ s/\\($semarks) $oplline_key/\\${1}$altsubsuffix $oplline_key/;
+			$opledfile_in[$oplineno{$altmain}] = $altmainrec;
+			say STDERR qq(Changed the subentry mark: "$opledfile_in[$oplineno{$altmain}]") if $debug;
+			}
+		else {
+			say STDERR qq(In "$oplline" looked for "\\$altmnrefmark $altmain" and had a hash miss.);
+			}
+		}
+	say STDERR "oplline:", Dumper($oplline) if $debug;
+	}
 
 for my $oplline (@opledfile_in) {
 	say STDERR "oplline:", Dumper($oplline) if $debug;
