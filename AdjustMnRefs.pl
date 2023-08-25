@@ -79,12 +79,13 @@ say STDERR "Alternate Subentry Marker Suffix:$altsubsuffix" if $debug;
 # generate array of the input file with one SFM record per line (opl)
 my @opledfile_in;
 my $line = ""; # accumulated SFM record
+my $crlf;
 while (<>) {
-	s/\R//g; # chomp that doesn't care about Linux & Windows
+	$crlf = $MATCH if  s/\R//g;
 	s/$eolrep/$reptag/g;
 	$_ .= "$eolrep";
 	if (/^\\$recmark /) {
-		$line =~ s/$eolrep$/\n/;
+		$line =~ s/$eolrep$/$crlf/;
 		push @opledfile_in, $line;
 		$line = $_;
 		}
@@ -136,7 +137,8 @@ for my $oplline (@opledfile_in) {
 	say STDERR "oplline:", Dumper($oplline) if $debug;
 	#de_opl this line
 	for ($oplline) {
-		s/$eolrep/\n/g;
+		$crlf=$MATCH if /\R/;
+		s/$eolrep/$crlf/g;
 		s/$reptag/$eolrep/g;
 		print;
 		}
