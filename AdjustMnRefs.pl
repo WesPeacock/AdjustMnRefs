@@ -30,6 +30,8 @@ use Getopt::Long;
 GetOptions (
 	'inifile:s'   => \(my $inifilename = "$scriptname.ini"), # ini filename
 	'section:s'   => \(my $inisection = "AdjustMnRefs"), # section of ini file to use
+
+	'help'    => \my $help,
 # additional options go here.
 # 'sampleoption:s' => \(my $sampleoption = "optiondefault"),
 	'recmark:s' => \(my $recmark = "lx"), # record marker, default lx
@@ -41,7 +43,10 @@ GetOptions (
 	#	Better yet, just don't specify it -- it's the default.
 	'debug'       => \my $debug,
 	) or die $USAGE;
-
+if ($help) {
+	say STDERR $USAGE;
+	exit;
+	}
 # check your options and assign their information to variables here
 
 use Config::Tiny;
