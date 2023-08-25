@@ -1,5 +1,5 @@
 #!/usr/bin/env perl
-my $USAGE = "Usage: $0 [--inifile inifile.ini] [--section AdjustMnRefs] [--recmark lx] [--eolrep #] [--reptag __hash__] [--debug] [file.sfm]\n";
+my $USAGE = "Usage: $0 [--inifile inifile.ini] [--section AdjustMnRefs] [--logfile logfile.log] [--recmark lx] [--eolrep #] [--reptag __hash__] [--debug] [file.sfm]\n";
 =pod
 This script is to adjust the main references and flag their corresponding subentry.
 
@@ -25,12 +25,14 @@ use Data::Dumper qw(Dumper);
 use File::Basename;
 my $scriptname = fileparse($0, qr/\.[^.]*/); # script name without the .pl
 $USAGE =~ s/inifile\./$scriptname\./;
+$USAGE =~ s/logfile\./$scriptname\./;
 
 use Getopt::Long;
 GetOptions (
 	'inifile:s'   => \(my $inifilename = "$scriptname.ini"), # ini filename
 	'section:s'   => \(my $inisection = "AdjustMnRefs"), # section of ini file to use
 
+	'logfile:s'   => \(my $logfilename = "$scriptname.log"), # log filename
 	'help'    => \my $help,
 # additional options go here.
 # 'sampleoption:s' => \(my $sampleoption = "optiondefault"),
@@ -47,6 +49,11 @@ if ($help) {
 	say STDERR $USAGE;
 	exit;
 	}
+
+open(my $LOGFILE, '>', $logfilename)
+		or die "Could not open Log file '$logfilename' $!";
+
+
 # check your options and assign their information to variables here
 
 use Config::Tiny;
@@ -133,7 +140,7 @@ for my $oplline  (@opledfile_in) {
 			say STDERR qq(Changed the subentry mark: "$opledfile_in[$oplineno{$altmain}]") if $debug;
 			}
 		else {
-			say STDERR qq(In "$oplline" looked for "\\$altmnrefmark $altmain" and had a hash miss.);
+			say LOGFILE qq(Error: In "$oplline" looked for "\\$altmnrefmark $altmain" and couldn't find it.);
 			}
 		}
 	say STDERR "oplline:", Dumper($oplline) if $debug;
