@@ -5,7 +5,7 @@ This script is to adjust the main references and flag their corresponding subent
 
 The ini file should have sections with syntax like this:
 [AdjustMnRefs]
-RecordMarker=lx
+recmark=lx
 SubentryMarkers=se
 MainREfMarker=mn
 SecondMainRefMarker=mnx
@@ -60,7 +60,7 @@ use Config::Tiny;
 my $config = Config::Tiny->read($inifilename, 'crlf');
 die "Quitting: couldn't find the INI file $inifilename\n$USAGE\n" if !$config;
 
-$recmark = $config->{"$inisection"}->{RecordMarker} if $config->{"$inisection"}->{RecordMarker};
+$recmark = $config->{"$inisection"}->{recmark} if $config->{"$inisection"}->{recmark};
 $recmark = clean_marks($recmark); # no backslashes or spaces in record marker
 
 my $hmmark = $config->{"$inisection"}->{homographmark};
@@ -140,10 +140,16 @@ for my $oplline  (@opledfile_in) {
 			say STDERR qq(Changed the subentry mark: "$opledfile_in[$oplineno{$altmain}]") if $debug;
 			}
 		else {
-			say LOGFILE qq(Error: In "$oplline" looked for "\\$altmnrefmark $altmain" and couldn't find it.);
+			say $LOGFILE qq(Error: In "$oplline" looked for "\\$altmnrefmark $altmain" and couldn't find it.);
 			}
 		}
 	say STDERR "oplline:", Dumper($oplline) if $debug;
+	}
+# number the mnx entries starting at 2 (to match FLEx lexical refs EC-2, EC-3, etc.)
+
+for my $oplline (@opledfile_in) {
+	my $mnxcount=1;
+	$oplline =~ s/\\mnx/$mnxcount++; "$MATCH$mnxcount"/ge;
 	}
 
 for my $oplline (@opledfile_in) {
