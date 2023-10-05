@@ -105,7 +105,7 @@ while (<>) {
 	else { $line .= $_ }
 	}
 push @opledfile_in, $line;
-say "opledfile array:" if $debug;
+say STDERR "opledfile array:" if $debug;
 say STDERR @opledfile_in if $debug;
 
 my $sizeopl = scalar @opledfile_in;
@@ -117,13 +117,13 @@ for (my $oplindex=0; $oplindex < $sizeopl; $oplindex++) {
 	my $key = getkey($opledfile_in[$oplindex], $recmark, $hmmark);
 	$oplineno{$key}= $oplindex;
 	}
-say "oplineno hash keyed on lexeme/homographs:"  if $debug;
+say STDERR "oplineno hash keyed on lexeme/homographs:"  if $debug;
 print STDERR Dumper %oplineno  if $debug;
 for my $oplline (@opledfile_in) {
 	$oplline =~ s/\\$mnrefmark /\\$altmnrefmark /g;
 	$oplline =~ s/\\$altmnrefmark /\\$mnrefmark /; # change the first one back
 	}
-say "opledfile array:" if $debug;
+say STDERR "opledfile array:" if $debug;
 say STDERR @opledfile_in if $debug;
 
 for my $oplline  (@opledfile_in) {
